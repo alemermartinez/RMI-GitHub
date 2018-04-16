@@ -48,6 +48,12 @@ bandw <- matrix(htilde,4,4)
 diag(bandw) <- rep(halpha,4)
 ```
 
+Besides, we need bandwidths to compute a preliminary estimator of the residual scale. By choosing this vector of bandwidths it is expected an average of 5 points in each 4-dimensional neighbourhood.
+
+```{r}
+win.sigma <- c(0.93, 0.93, 0.93, 0.93)
+```
+
 
 
 
