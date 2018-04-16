@@ -28,13 +28,14 @@ function.g4 <- function(x4) 1/4*exp(x4)-1/24*(exp(3)-exp(-3))
 
 set.seed(140)
 n <- 500
-x1 <- runif(n,-3,3)
-x2 <- runif(n,-3,3)
-x3 <- runif(n,-3,3)
-x4 <- runif(n,-3,3)
+x1 <- runif(n, -3, 3)
+x2 <- runif(n, -3, 3)
+x3 <- runif(n, -3, 3)
+x4 <- runif(n, -3, 3)
+X <- cbind(x1, x2, x3, x4)
 eps <- rnorm(n,0,sd=0.15)
 regresion <- function.g1(x1) + function.g2(x2) + function.g3(x3) + function.g4(x4)
-yp <- regresion + eps
+y <- regresion + eps
 ```
 
 Since this example is a 4-dimensional example, we considered a kernel of order 4 to estimate each additive function. As it is explained in the paper, the bandwidth used for the direction of interest and for the nuisance direction might be different.
@@ -52,6 +53,12 @@ Besides, we need bandwidths to compute a preliminary estimator of the residual s
 
 ```{r}
 win.sigma <- c(0.93, 0.93, 0.93, 0.93)
+```
+
+Now, we use the robust marginal integration procedure to fit an additive model using the Huber loss function (with default tuning constant c=1.345), a linear fit (degree=1) for estimating each additive function, a kernel of order 4 (orderkernel=4) and the procedure which focus the attention on each alpha additive component and not on all of them at a time (correspondind to type='alpha'):
+
+```{r}
+robust.fit <- margint.rob(Xp=X, yp=y, windows=bandw, win.sigma=win.sigma, epsilon=1e-10, degree=1, type='alpha', orderkernel=4, typePhi='Huber')
 ```
 
 
