@@ -18,7 +18,7 @@ The following example corresponds to one of the 4-dimensional simulated samples 
 
 Let begin by defining the additive functions and then generating the simulated sample. 
 
-<code>
+```{r}
 library(RMI)
 set.seed(123)
 n <- 500
@@ -33,7 +33,7 @@ function.g3 <- function(x3) 1/2*x3^2-3/2
 function.g4 <- function(x4) 1/4*exp(x4)-1/24*(exp(3)-exp(-3))
 regresion <- function.g1(x1) + function.g2(x2) + function.g3(x3) + function.g4(x4)
 yp <- regresion + eps
-</code>
+```
 
 
 
