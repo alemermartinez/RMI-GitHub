@@ -26,7 +26,7 @@ function.g2 <- function(x2) sin(-1*x2)
 function.g3 <- function(x3) 1/2*x3^2-3/2
 function.g4 <- function(x4) 1/4*exp(x4)-1/24*(exp(3)-exp(-3))
 
-set.seed(123)
+set.seed(140)
 n <- 500
 x1 <- runif(n,-3,3)
 x2 <- runif(n,-3,3)
@@ -36,6 +36,22 @@ eps <- rnorm(n,0,sd=0.15)
 regresion <- function.g1(x1) + function.g2(x2) + function.g3(x3) + function.g4(x4)
 yp <- regresion + eps
 ```
+
+Since this example is a 4-dimensional example, we considered a kernel of order 4 to estimate each additive function. As it is explained in the paper, the bandwidth used for the direction of interest and for the nuisance direction might be different.
+
+In order to obtain these bandwidths, for computing the classical and robust marginal integration estimators, classical K-fold cross-validation procedure and a robust version of the K-fold cross-validation were performed (described in the paper). The following matrix contains the bandwidths obtained for estimating each additive component.
+
+```{r}
+htilde <- 2
+halpha <- 1.2165
+bandw <- matrix(htilde,4,4)
+diag(bandw) <- rep(halpha,4)
+```
+
+
+
+
+
 
 
 
