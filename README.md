@@ -55,12 +55,14 @@ Besides, we need bandwidths to compute a preliminary estimator of the residual s
 win.sigma <- c(0.93, 0.93, 0.93, 0.93)
 ```
 
-Now, we use the robust marginal integration procedure to fit an additive model using the Huber loss function (with default tuning constant c=1.345), a linear fit (degree=1) for estimating each additive function, a kernel of order 4 (orderkernel=4) and the procedure which focus the attention on each alpha additive component and not on all of them at a time (correspondind to type='alpha'):
+Now we use the robust marginal integration procedure to fit an additive model using the Huber loss function (with default tuning constant c=1.345), a linear fit (degree=1) for estimating each additive function, a kernel of order 4 (orderkernel=4) and the procedure which focus the attention on each alpha additive component and not on all of them at a time (correspondind to type='alpha'):
 
 ```{r}
 robust.fit <- margint.rob(Xp=X, yp=y, windows=bandw, win.sigma=win.sigma, epsilon=1e-10, 
                          degree=1, type='alpha', orderkernel=4, typePhi='Huber')
 ```
+
+Finally, we plot the residuals for each additive component, the estimation of the univariate functions and the true curves.
 
 
 
