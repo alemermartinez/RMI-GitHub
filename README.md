@@ -61,7 +61,7 @@ robust.fit$prediction
 c(function.g1(point[1]), function.g2(point[2]))
 ```
 
-The following figures plots the partial residuals and the estimated curve for each additive function:
+The following figures plot the partial residuals, the estimated curve (in blue) and the true function (in black) for each additive function:
 
 ```{r}
 lim.rob <- matrix(0, 2, 2)
@@ -79,7 +79,6 @@ for(j in 1:2) {
 ### ACÁ VA EL GRÁFICO FIGURE1
 
 
-
 Now, for estimating the derivatives, we will consider the bandwidth for the direction of interest as 0.15 while 0.2 for the nuisance direction. Same other arguments were set in the function.
 
 ```{r}
@@ -92,9 +91,27 @@ robust.fit2 <- margint.rob(Xp=X, yp=y, point=point, windows=bandw, epsilon=1e-10
                           orderkernel=2, typePhi='Huber', Qmeasure=Qmeasure, qderivate=TRUE)
 ```
 
+The prediction and true values of the derivative additive functions are:
 
+```{r}
+function.g1.prime <- function(x1) 24*2*(x1-1/2)
+function.g2.prime <- function(x2) 2*pi^2*cos(pi*x2)
 
+robust.fit2$prediccion.derivate ###CAMBIAR EL NOMBRE!!!
+c(function.g1.prime(point[1]), function.g2.prime(point[2]))
+```
 
+The following figures plot the estimated (in blue) and true (in black) curves for each derivative additive function:
 
-
+```{r}
+par(mfrow=c(1,2))
+lim.rob <- matrix(0, 2, 2)
+functions.g.prime <- cbind(function.g1.prime(X[,1]), function.g2.prime(X[,2]))
+for(j in 1:2) {
+  ord <- order(X[,j])
+  lim.rob[,j] <- range(c(functions.g.prime[,j],robust.fit2$g.derivate[,j]))
+  plot(X[ord,j], robust.fit2$g.derivate[ord,j], type='l', lwd=3, col='blue', xlab=colnames(X)[j], ylab='', cex=1, ylim=lim.rob[,j])
+  lines(X[ord,j], functions.g.prime[ord,j], lwd=3)
+}
+```
 
