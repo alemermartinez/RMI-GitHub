@@ -23,7 +23,6 @@ library(RMI)
 function.g1 <- function(x1) 24*(x1-1/2)^2-2
 function.g2 <- function(x2) 2*pi*sin(pi*x2)-4
 
-
 set.seed(140)
 n <- 500
 x1 <- runif(n)
@@ -55,7 +54,43 @@ robust.fit <- margint.rob(Xp=X, yp=y, point=point windows=bandw, epsilon=1e-10, 
                           type='alpha', orderkernel=2, typePhi='Huber', Qmeasure=Qmeasure)
 ```
 
-Now, for estimating the derivatives, we will consider the bandwidth for the direction of interest as 0.15 while 0.2 for the nuisance direction.
+The prediction and true values of the additive functions are:
+
+```{r}
+robust.fit$prediction
+c(function.g1(point[1]), function.g2(point[2]))
+```
+
+The following figures plots the partial residuals and the estimated curve for each additive function:
+
+```{r}
+lim.rob <- matrix(0, 2, 2)
+functions.g <- cbind(function.g1(X[,1]), function.g2(X[,2]))
+par(mfrow=c(1,2))
+for(j in 1:2) {
+  res <- y - robust.fit$alpha - robust.fit$g.matrix[,-j]
+  lim.rob[,j] <- range(res)
+  plot(X[,j], res, type='p', pch=19, col='gray45', xlab=colnames(X)[j], ylab='', cex=1, ylim=lim.rob[,j])
+  ord <- order(X[,j])
+  lines(X[ord,j], robust.fit$g.matrix[ord,j], lwd=3, col='blue')
+  lines(X[ord,j], functions.g[ord,j], lwd=3)
+}
+```
+### ACÁ VA EL GRÁFICO FIGURE1
+
+
+
+Now, for estimating the derivatives, we will consider the bandwidth for the direction of interest as 0.15 while 0.2 for the nuisance direction. Same other arguments were set in the function.
+
+```{r}
+htilde <- 0.2
+halpha <- 0.15
+bandw <- matrix(htilde,2,2)
+diag(bandw) <- rep(halpha,2)
+
+robust.fit2 <- margint.rob(Xp=X, yp=y, point=point, windows=bandw, epsilon=1e-10, degree=1, type='alpha',
+                          orderkernel=2, typePhi='Huber', Qmeasure=Qmeasure, qderivate=TRUE)
+```
 
 
 
