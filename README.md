@@ -97,7 +97,7 @@ The prediction and true values of the derivative additive functions are:
 function.g1.prime <- function(x1) 24*2*(x1-1/2)
 function.g2.prime <- function(x2) 2*pi^2*cos(pi*x2)
 
-robust.fit2$prediccion.derivate ###CAMBIAR EL NOMBRE!!!
+robust.fit2$prediction.derivate
 c(function.g1.prime(point[1]), function.g2.prime(point[2]))
 ```
 
