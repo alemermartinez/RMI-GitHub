@@ -76,8 +76,6 @@ for(j in 1:2) {
   lines(X[ord,j], functions.g[ord,j], lwd=3)
 }
 ```
-
-
 ![figure1](https://user-images.githubusercontent.com/38252440/39189762-63f782e2-47a9-11e8-8128-777cdd6575a5.png)
 
 
@@ -117,5 +115,4 @@ for(j in 1:2) {
   lines(X[ord,j], functions.g.prime[ord,j], lwd=3)
 }
 ```
-
-### ACÁ VA EL GRÁFICO FIGURE2
+![figure2](https://user-images.githubusercontent.com/38252440/39189876-be0dff0e-47a9-11e8-83be-40fb84bb8881.png)
