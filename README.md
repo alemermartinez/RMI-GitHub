@@ -76,7 +76,9 @@ for(j in 1:2) {
   lines(X[ord,j], functions.g[ord,j], lwd=3)
 }
 ```
-### ACÁ VA EL GRÁFICO FIGURE1
+
+
+![figure1](https://user-images.githubusercontent.com/38252440/39189762-63f782e2-47a9-11e8-8128-777cdd6575a5.png)
 
 
 Now, for estimating the derivatives, we will consider the bandwidth for the direction of interest as 0.15 while 0.2 for the nuisance direction. Same other arguments were set in the function.
