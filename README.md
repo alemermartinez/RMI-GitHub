@@ -110,8 +110,10 @@ functions.g.prime <- cbind(function.g1.prime(X[,1]), function.g2.prime(X[,2]))
 for(j in 1:2) {
   ord <- order(X[,j])
   lim.rob[,j] <- range(c(functions.g.prime[,j],robust.fit2$g.derivate[,j]))
-  plot(X[ord,j], robust.fit2$g.derivate[ord,j], type='l', lwd=3, col='blue', xlab=colnames(X)[j], ylab='', cex=1, ylim=lim.rob[,j])
+  plot(X[ord,j], robust.fit2$g.derivate[ord,j], type='l', lwd=3, col='blue', xlab=colnames(X)[j], 
+      ylab='', cex=1, ylim=lim.rob[,j])
   lines(X[ord,j], functions.g.prime[ord,j], lwd=3)
 }
 ```
 
+### ACÁ VA EL GRÁFICO FIGURE2
