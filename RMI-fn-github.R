@@ -1,3 +1,5 @@
+dyn.load('RMI-fn.dll')
+
 # Tukey's Psi
 psi.tukey <- function(r, k=4.685){
   u <- abs(r/k)
