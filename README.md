@@ -9,9 +9,11 @@ This repository contains an <code>R</code> package with the classical and robust
 
 The package can be install from <code>R</code> by using
 
-<code> install_github("alemermartinez/RMI")
+<code>
+  library(devtools)
+  install_github("alemermartinez/RMI")
   </code>
-  <b> Me gustaria que esto funcione. Yo también necesito el devtools? </b>
+  
 
 The following example corresponds to one of the 2-dimensional simulated samples considered in the paper.
 
