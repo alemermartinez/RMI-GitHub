@@ -1,0 +1,9 @@
+Package: RBF
+Type: Package
+Title: Robust Marginal Integration
+Version: 1.0
+Date: 2018-07-06
+Author: Alejandra Martinez, Matias Salibian-Barrera
+Maintainer: Alejandra Martinez <ale_m_martinez@hotmail.com>
+Description: Robust marginal integration procedures for additive models
+License: GPL (>=3.0) 
