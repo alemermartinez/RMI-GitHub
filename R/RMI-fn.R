@@ -532,7 +532,7 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
 
  	      }
 	      if(typePhi=='Tukey'){
-	        aa[i] <- .C("kernel_huber_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
+	        aa[i] <- .C("kernel_tukey_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
                                   as.double(yp), as.double(beta.ini), as.double(windows), 
                                   as.double(epsilon), as.double(sigma.hat), 
                                   as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
@@ -640,7 +640,7 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
 
  	      }
 	      if(typePhi=='Tukey'){
-	        aa[i] <- .C("kernel_huber_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
+	        aa[i] <- .C("kernel_tukey_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
                                   as.double(yp), as.double(beta.ini), as.double(windows), 
                                   as.double(epsilon), as.double(sigma.hat), 
                                   as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
