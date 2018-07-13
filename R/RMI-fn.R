@@ -1,3 +1,24 @@
+# Hello, world!
+#
+# This is an example function named 'hello'
+# which prints 'Hello, world!'.
+#
+# You can learn more about package authoring with RStudio at:
+#
+#   http://r-pkgs.had.co.nz/
+#
+# Some useful keyboard shortcuts for package authoring:
+#
+#   Build and Reload Package:  'Ctrl + Shift + B'
+#   Check Package:             'Ctrl + Shift + E'
+#   Test Package:              'Ctrl + Shift + T'
+
+# Tukey's Psi
+
+#' @param variable
+#' @return value
+#' @export
+
 # Tukey's Psi
 psi.tukey <- function(r, k=4.685){
   u <- abs(r/k)
@@ -20,7 +41,7 @@ psi.huber <- function(r, k=1.345)
 
 #Huber's weight function "Psi(r)/r"
 psi.huber.w <- function(r, k=1.345)
-  pmin(1, k/abs(r)) 
+  pmin(1, k/abs(r))
 
 #Euclidean norm
 my.norm.2 <- function(x) sqrt(sum(x^2))
@@ -71,21 +92,21 @@ kernel10<-function(x) {
 
 ## Classic Marginal Integration
 margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
-                      type='0', degree=NULL, qderivate=FALSE, orderkernel=2,
-		      Qmeasure=NULL) {
+                       type='0', degree=NULL, qderivate=FALSE, orderkernel=2,
+                       Qmeasure=NULL) {
   # Xp = covariance matrix (n x q).
   # yp = response vector (NA's are allowed).
-  # point = vector of length q or a matrix with q columns where predictions 
+  # point = vector of length q or a matrix with q columns where predictions
   #  are computed. If missing, predictions are computed for each row of Xp.
-  # windows = vector of length q or a q times q matrix with kernel windows. 
+  # windows = vector of length q or a q times q matrix with kernel windows.
   #  The matrix is used for the 'alpha' procedure.
   # epsilon = convergence criterion.
   # prob = probabilities of observing each response (n).
-  # type= '0' (local constant), '1' (local linear), 'alpha' (local 
+  # type= '0' (local constant), '1' (local linear), 'alpha' (local
   #  polynomial using 'degree').
-  # degree = degree of the local polynomial smoother in the direction of 
+  # degree = degree of the local polynomial smoother in the direction of
   # interest when using the estimator of type 'alpha'.
-  # orderkernel = order of the kernel used in the nuisance directions when 
+  # orderkernel = order of the kernel used in the nuisance directions when
   #  using the estimator of type 'alpha'.
   # qderivate = if TRUE, it calculates g^(q+1)/(q+1)! for each component
   #  only for the type 'alpha' method.
@@ -101,7 +122,7 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
     }
   }else{
     if((!is.null(dim(windows)))|(!is.vector(windows))){
-	stop("Windows should be a vector")
+      stop("Windows should be a vector")
     }
   }
 
@@ -121,14 +142,14 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
     prob <- prob[tmp]
   }
   if(dim(t(as.matrix(windows)))[2]!=q){return("Error Dimension of Bandwidths")}
- 
+
   #Initializations
   puntoj <- rep(0,q)
   pesosi <- rep(1,n.miss)
- 
+
   # If a Qmeasure is provided
   if(!is.null(Qmeasure)){
-  
+
     grilla <- rbind(Qmeasure, XX)
     nQ <- dim(grilla)[1]
 
@@ -151,36 +172,36 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
 
     for(k in 1:nQ){
       for(j in 1:q){
-        for(i in 1:nq){ 
+        for(i in 1:nq){
           puntoj <- Qmeasure[i,]
-	    puntoj[j]<- grilla[k,j]
-	    if(type=='0'){
-	      aa[i] <- .C("kernel_cl_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(0) )$salida
+          puntoj[j]<- grilla[k,j]
+          if(type=='0'){
+            aa[i] <- .C("kernel_cl_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                        as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(0) )$salida
             if(i==k){alpha.aux[k] <- aa[i]}
-	    }
-	    if(type=='1'){
-	      aa[i] <- .C("kernel_cl_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(rep(0, q+1)))$salida[1]
+          }
+          if(type=='1'){
+            aa[i] <- .C("kernel_cl_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                        as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(rep(0, q+1)))$salida[1]
             if(i==k){alpha.aux[k] <- aa[i]}
-	    }
-	    if(type=='alpha'){
+          }
+          if(type=='alpha'){
             if(is.null(dim(windows))){
-	        windows <- t(matrix(windows,q,q))
+              windows <- t(matrix(windows,q,q))
             }
-	      AUX <- .C("kernel_cl_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
-                                  as.double(yp), as.double(windows[j,]), as.double(epsilon), as.double(prob), salida=as.double(rep(0, degree+1)) )$salida
-	      aa[i] <- AUX[1]
-	      if(qderivate){
-		  aa.derivate[i] <- AUX[degree+1]
-	      }
+            AUX <- .C("kernel_cl_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
+                      as.double(yp), as.double(windows[j,]), as.double(epsilon), as.double(prob), salida=as.double(rep(0, degree+1)) )$salida
+            aa[i] <- AUX[1]
+            if(qderivate){
+              aa.derivate[i] <- AUX[degree+1]
+            }
             if(i==k){alphal.aux[k,j] <- aa[i]}
-	    }
-	  }
-	  g.matriz.bis[k,j]<-mean(aa,na.rm=TRUE)
-	  if(qderivate){
-	    g.derivate.bis[k,j]<-mean(aa.derivate,na.rm=TRUE)
-	  }
+          }
+        }
+        g.matriz.bis[k,j]<-mean(aa,na.rm=TRUE)
+        if(qderivate){
+          g.derivate.bis[k,j]<-mean(aa.derivate,na.rm=TRUE)
+        }
       }
     }
 
@@ -213,34 +234,34 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
       for(j in 1:q){
         for(i in 1:n){
           puntoj <- XX[i,]
-	    puntoj[j]<-XX[k,j]
-	    if(type=='0'){
-	      aa[i] <- .C("kernel_cl_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(0) )$salida
+          puntoj[j]<-XX[k,j]
+          if(type=='0'){
+            aa[i] <- .C("kernel_cl_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                        as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(0) )$salida
             if(i==k){alpha.aux[k] <- aa[i]}
-	    }
-	    if(type=='1'){
-	      aa[i] <- .C("kernel_cl_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(rep(0, q+1)))$salida[1]
+          }
+          if(type=='1'){
+            aa[i] <- .C("kernel_cl_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                        as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(rep(0, q+1)))$salida[1]
             if(i==k){alpha.aux[k] <- aa[i]}
-	    }
-	    if(type=='alpha'){
+          }
+          if(type=='alpha'){
             if(is.null(dim(windows))){
-	        windows <- t(matrix(windows,q,q))
+              windows <- t(matrix(windows,q,q))
             }
-	      AUX <- .C("kernel_cl_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
-                                  as.double(yp), as.double(windows[j,]), as.double(epsilon), as.double(prob), salida=as.double(rep(0, degree+1)) )$salida
-	      aa[i] <- AUX[1]
-	      if(qderivate){
-		  A.derivate[i] <- AUX[degree+1]
-	      }
+            AUX <- .C("kernel_cl_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
+                      as.double(yp), as.double(windows[j,]), as.double(epsilon), as.double(prob), salida=as.double(rep(0, degree+1)) )$salida
+            aa[i] <- AUX[1]
+            if(qderivate){
+              A.derivate[i] <- AUX[degree+1]
+            }
             if(i==k){alphal.aux[k,j] <- aa[i]}
-	    }
-	  }
-	  g.matriz[k,j]<-mean(aa,na.rm=TRUE)
-	  if(qderivate){
-	    g.derivate[k,j]<-mean(A.derivate,na.rm=TRUE)
-	  }
+          }
+        }
+        g.matriz[k,j]<-mean(aa,na.rm=TRUE)
+        if(qderivate){
+          g.derivate[k,j]<-mean(A.derivate,na.rm=TRUE)
+        }
       }
     }
 
@@ -265,14 +286,14 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
     if(!is.null(punto)) {
       if(is.null(dim(punto))) {
         prediccion <- mpunto <- t(as.matrix(punto))
-	    if(qderivate){
-            prediccion.deri <- prediccion
-	    }
+        if(qderivate){
+          prediccion.deri <- prediccion
+        }
       } else {
         prediccion <- mpunto <- punto
-	  if(qderivate){
+        if(qderivate){
           prediccion.deri <- prediccion
-	  }
+        }
       }
       np <- dim(mpunto)[1]
       for(k in 1:np){
@@ -281,45 +302,45 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
             puntoj <- Qmeasure[i,]
             puntoj[j] <- mpunto[k,j]
 
-	      if(type=='0'){
-	        aa[i] <- .C("kernel_cl_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(0) )$salida
+            if(type=='0'){
+              aa[i] <- .C("kernel_cl_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                          as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(0) )$salida
             }
             if(type=='1'){
-	        aa[i] <- .C("kernel_cl_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(rep(0, q+1)))$salida[1]
-	      }
+              aa[i] <- .C("kernel_cl_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                          as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(rep(0, q+1)))$salida[1]
+            }
 
-	      if(type=='alpha'){
-	        AUX <- .C("kernel_cl_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
-                                  as.double(yp), as.double(windows[j,]), as.double(epsilon), as.double(prob), salida=as.double(rep(0, degree+1)) )$salida
-		  aa[i] <- AUX[1]
-	  	  if(qderivate){
-		    aa.deri[i] <- AUX[degree+1]
-  		  }
-	      }
+            if(type=='alpha'){
+              AUX <- .C("kernel_cl_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
+                        as.double(yp), as.double(windows[j,]), as.double(epsilon), as.double(prob), salida=as.double(rep(0, degree+1)) )$salida
+              aa[i] <- AUX[1]
+              if(qderivate){
+                aa.deri[i] <- AUX[degree+1]
+              }
+            }
           }
           prediccion[k,j] <- mean(aa,na.rm=TRUE)-alpha
-	    if(qderivate){
-	      prediccion.deri[k,j] <- mean(aa.deri,na.rm=TRUE)
-	    }
+          if(qderivate){
+            prediccion.deri[k,j] <- mean(aa.deri,na.rm=TRUE)
+          }
         }
       }
-    } #end if 
+    } #end if
   }else{ #If a Qmeasure is not provided
     aa <- rep(0,n)
     aa.deri <- rep(0,n)
     if(!is.null(punto)){
       if(is.null(dim(punto))){
         prediccion <- mpunto <- t(as.matrix(punto))
-	  if(qderivate){
+        if(qderivate){
           prediccion.deri <- prediccion
-	  }
+        }
       } else {
         prediccion <- mpunto <- punto
-	  if(qderivate){
+        if(qderivate){
           prediccion.deri <- prediccion
-	  }
+        }
       }
       np <- dim(mpunto)[1]
       for(k in 1:np){
@@ -328,28 +349,28 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
             puntoj <- XX[i,]
             puntoj[j] <- mpunto[k,j]
 
-	      if(type=='0'){
-	        aa[i] <- .C("kernel_cl_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(0) )$salida
+            if(type=='0'){
+              aa[i] <- .C("kernel_cl_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                          as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(0) )$salida
             }
             if(type=='1'){
-	        aa[i] <- .C("kernel_cl_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(rep(0, q+1)))$salida[1]
-	      }
+              aa[i] <- .C("kernel_cl_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                          as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(rep(0, q+1)))$salida[1]
+            }
 
-	      if(type=='alpha'){
-	        AUX <- .C("kernel_cl_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
-                                  as.double(yp), as.double(windows[j,]), as.double(epsilon), as.double(prob), salida=as.double(rep(0, degree+1)) )$salida
-		  aa[i] <- AUX[1]
-		  if(qderivate){
-		    aa.deri[i] <- AUX[degree+1]
-  		  }
-	      }
+            if(type=='alpha'){
+              AUX <- .C("kernel_cl_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
+                        as.double(yp), as.double(windows[j,]), as.double(epsilon), as.double(prob), salida=as.double(rep(0, degree+1)) )$salida
+              aa[i] <- AUX[1]
+              if(qderivate){
+                aa.deri[i] <- AUX[degree+1]
+              }
+            }
           }
           prediccion[k,j] <- mean(aa,na.rm=TRUE)-alpha
-	    if(qderivate){
-	      prediccion.deri[k,j] <- mean(aa.deri,na.rm=TRUE)
-	    }
+          if(qderivate){
+            prediccion.deri[k,j] <- mean(aa.deri,na.rm=TRUE)
+          }
         }
       }
     } #End of if
@@ -378,29 +399,29 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
   }
 
 
-} 
+}
 
 
 
 ## Robust Marginal Integration
-margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL, 
-		win.sigma=NULL, epsilon=1e-06, type='0', degree=NULL, typePhi='Huber', 
-		k.h=1.345, k.t = 4.685, max.it=20, qderivate=FALSE, orderkernel=2, 
-		Qmeasure=NULL){
+margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
+                        win.sigma=NULL, epsilon=1e-06, type='0', degree=NULL, typePhi='Huber',
+                        k.h=1.345, k.t = 4.685, max.it=20, qderivate=FALSE, orderkernel=2,
+                        Qmeasure=NULL){
 
   # Xp = covariance matrix (n x q).
   # yp = response vector (NA's are allowed).
-  # point = vector of length q or a matrix with q columns where predictions 
+  # point = vector of length q or a matrix with q columns where predictions
   #  are computed. If missing, predictions are computed for each row of Xp.
-  # windows = vector of length q x q times q matrix with kernel windows. 
+  # windows = vector of length q x q times q matrix with kernel windows.
   #  The matrix is used for the 'alpha' procedure.
   # epsilon = convergence criterion.
   # prob = probabilities of observing each response (n).
-  # type= '0' (local constant), '1' (local linear), 'alpha' (local 
+  # type= '0' (local constant), '1' (local linear), 'alpha' (local
   #  polynomial using 'degree').
-  # degree = degree of the local polynomial smoother in the direction of 
+  # degree = degree of the local polynomial smoother in the direction of
   # interest when using the estimator of type 'alpha'.
-  # orderkernel = order of the kernel used in the nuisance directions when 
+  # orderkernel = order of the kernel used in the nuisance directions when
   #  using the estimator of type 'alpha'.
   # qderivate = if TRUE, it calculates g^(q+1)/(q+1)! for each component (only for the
   #  type 'alpha' method.
@@ -413,7 +434,7 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
   # typePhi = 'Huber' or 'Tukey'
   # max.it = max number of iterations for the robust estimation step.
 
-  
+
   if(type=='alpha'){
     if(is.null(degree)){
       stop("Degree of local polynomial missing")
@@ -424,7 +445,7 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
     }
   }else{
     if((!is.null(dim(windows)))|(!is.vector(windows))){
-	stop("Windows should be a vector")
+      stop("Windows should be a vector")
     }
   }
 
@@ -437,7 +458,7 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
     if(is.null(dim(windows))){
       win.sigma <- windows
     }else{
-	win.sigma <- diag(windows)
+      win.sigma <- diag(windows)
     }
   }
 
@@ -452,12 +473,12 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
     prob <- prob[tmp]
   }
   if(dim(t(as.matrix(windows)))[2]!=q){return("Error Dimension of Bandwidths")}
-  
+
   #Initializations
   puntoj <- rep(0,q)
   aa <- rep(0,n)
   pesosi <- rep(1,n.miss)
-  
+
   # Estimate residual standard error
   if(is.null(sigma.hat)){
     ab <- rep(0,n.miss)
@@ -470,12 +491,12 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
     }
     sigma.hat <- mad(yp - ab)
     if( sigma.hat < 1e-10 ){sigma.hat <- 1e-10} # sigma.hat <- sd(yp-ab,na.rm=TRUE)
-  } 
- 
+  }
+
 
   #If a Qmeasure is provided
   if(!is.null(Qmeasure)){
-  
+
     grilla <- rbind(Qmeasure, XX)
     nQ <- dim(grilla)[1]
 
@@ -497,86 +518,86 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
       for(j in 1:q){
         for(i in 1:nq){
           puntoj <- Qmeasure[i,]
-	    puntoj[j]<-grilla[k,j]
+          puntoj[j]<-grilla[k,j]
 
           #Inicializo el mu
-	    if(type=='0'){
-	      mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), 
-                                  as.double(prob), salida=as.double(0) )$salida
-	      if(typePhi=='Huber'){
-	        aa[i] <- .C("kernel_huber_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(mu.ini), as.double(windows), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(0) )$salida
- 	      }
-	      if(typePhi=='Tukey'){
-	        aa[i] <- .C("kernel_tukey_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(mu.ini), as.double(windows), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(0) )$salida	    
-	      }
-            if(i==k){alpha.aux[k] <- aa[i]}
-	    }
-	    if(type=='1'){
-	      mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), 
-                                  as.double(prob), salida=as.double(0) )$salida
-	      beta.ini <- rep(0,q+1)
-	      beta.ini[1] <- mu.ini
-	      if(typePhi=='Huber'){
-	        aa[i] <- .C("kernel_huber_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(beta.ini), as.double(windows), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
-
- 	      }
-	      if(typePhi=='Tukey'){
-	        aa[i] <- .C("kernel_tukey_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(beta.ini), as.double(windows), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
-	      }
-            if(i==k){alpha.aux[k] <- aa[i]}
-	    }
-	    if(type=='alpha'){
-	      mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), 
-                                  as.double(prob), salida=as.double(0) )$salida
-	      beta.ini <- rep(0,degree+1)
-	      beta.ini[1] <- mu.ini
-            if(is.null(dim(windows))){
-	        windows <- t(matrix(windows,q,q))
+          if(type=='0'){
+            mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                         as.double(yp), as.double(windows),
+                         as.double(prob), salida=as.double(0) )$salida
+            if(typePhi=='Huber'){
+              aa[i] <- .C("kernel_huber_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                          as.double(yp), as.double(mu.ini), as.double(windows),
+                          as.double(epsilon), as.double(sigma.hat),
+                          as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(0) )$salida
             }
-	      if(typePhi=='Huber'){
-	        AUX <- .C("kernel_huber_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
-                                  as.double(yp), as.double(beta.ini), as.double(windows[j,]), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, degree+1)) )$salida
-	        aa[i] <- AUX[1]
-		  if(qderivate){
-		    aa.derivate[i] <- AUX[degree+1] 
-    		  }
- 	      }
-	      if(typePhi=='Tukey'){
-	        AUX <- .C("kernel_tukey_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
-                                  as.double(yp), as.double(beta.ini), as.double(windows[j,]), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, degree+1)) )$salida
-	        aa[i] <- AUX[1]
-		  if(qderivate){
-		    aa.derivate[i] <- AUX[degree+1] 
-    		  }
- 	      }
+            if(typePhi=='Tukey'){
+              aa[i] <- .C("kernel_tukey_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                          as.double(yp), as.double(mu.ini), as.double(windows),
+                          as.double(epsilon), as.double(sigma.hat),
+                          as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(0) )$salida
+            }
+            if(i==k){alpha.aux[k] <- aa[i]}
+          }
+          if(type=='1'){
+            mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                         as.double(yp), as.double(windows),
+                         as.double(prob), salida=as.double(0) )$salida
+            beta.ini <- rep(0,q+1)
+            beta.ini[1] <- mu.ini
+            if(typePhi=='Huber'){
+              aa[i] <- .C("kernel_huber_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                          as.double(yp), as.double(beta.ini), as.double(windows),
+                          as.double(epsilon), as.double(sigma.hat),
+                          as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
+
+            }
+            if(typePhi=='Tukey'){
+              aa[i] <- .C("kernel_tukey_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                          as.double(yp), as.double(beta.ini), as.double(windows),
+                          as.double(epsilon), as.double(sigma.hat),
+                          as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
+            }
+            if(i==k){alpha.aux[k] <- aa[i]}
+          }
+          if(type=='alpha'){
+            mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                         as.double(yp), as.double(windows),
+                         as.double(prob), salida=as.double(0) )$salida
+            beta.ini <- rep(0,degree+1)
+            beta.ini[1] <- mu.ini
+            if(is.null(dim(windows))){
+              windows <- t(matrix(windows,q,q))
+            }
+            if(typePhi=='Huber'){
+              AUX <- .C("kernel_huber_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
+                        as.double(yp), as.double(beta.ini), as.double(windows[j,]),
+                        as.double(epsilon), as.double(sigma.hat),
+                        as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, degree+1)) )$salida
+              aa[i] <- AUX[1]
+              if(qderivate){
+                aa.derivate[i] <- AUX[degree+1]
+              }
+            }
+            if(typePhi=='Tukey'){
+              AUX <- .C("kernel_tukey_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
+                        as.double(yp), as.double(beta.ini), as.double(windows[j,]),
+                        as.double(epsilon), as.double(sigma.hat),
+                        as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, degree+1)) )$salida
+              aa[i] <- AUX[1]
+              if(qderivate){
+                aa.derivate[i] <- AUX[degree+1]
+              }
+            }
             if(i==k){
-		  alphal.aux[i,j] <- aa[i]
-	      }
-	    }
-	  }
-	  g.matriz.bis[k,j]<-mean(aa,na.rm=TRUE)
-	  if(qderivate){
-	    g.derivate.bis[k,j]<-mean(aa.derivate,na.rm=TRUE)
-	  }
+              alphal.aux[i,j] <- aa[i]
+            }
+          }
+        }
+        g.matriz.bis[k,j]<-mean(aa,na.rm=TRUE)
+        if(qderivate){
+          g.derivate.bis[k,j]<-mean(aa.derivate,na.rm=TRUE)
+        }
       }
     }
 
@@ -605,86 +626,86 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
       for(j in 1:q){
         for(i in 1:n){
           puntoj <- XX[i,]
-	    puntoj[j]<-XX[k,j]
+          puntoj[j]<-XX[k,j]
 
           #Inicializo el mu
-   	    if(type=='0'){
-	      mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), 
-                                  as.double(prob), salida=as.double(0) )$salida
-	      if(typePhi=='Huber'){
-	        aa[i] <- .C("kernel_huber_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(mu.ini), as.double(windows), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(0) )$salida
- 	      }
-	      if(typePhi=='Tukey'){
-	        aa[i] <- .C("kernel_tukey_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(mu.ini), as.double(windows), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(0) )$salida	    
-	      }
-            if(i==k){alpha.aux[k] <- aa[i]}
-	    }
-	    if(type=='1'){
-	      mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), 
-                                  as.double(prob), salida=as.double(0) )$salida
-	      beta.ini <- rep(0,q+1)
-	      beta.ini[1] <- mu.ini
-	      if(typePhi=='Huber'){
-	        aa[i] <- .C("kernel_huber_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(beta.ini), as.double(windows), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
-
- 	      }
-	      if(typePhi=='Tukey'){
-	        aa[i] <- .C("kernel_tukey_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(beta.ini), as.double(windows), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
-	      }
-            if(i==k){alpha.aux[k] <- aa[i]}
-	    }
-	    if(type=='alpha'){
-	      mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), 
-                                  as.double(prob), salida=as.double(0) )$salida
-	      beta.ini <- rep(0,degree+1)
-	      beta.ini[1] <- mu.ini
-            if(is.null(dim(windows))){
-	        windows <- t(matrix(windows,q,q))
+          if(type=='0'){
+            mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                         as.double(yp), as.double(windows),
+                         as.double(prob), salida=as.double(0) )$salida
+            if(typePhi=='Huber'){
+              aa[i] <- .C("kernel_huber_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                          as.double(yp), as.double(mu.ini), as.double(windows),
+                          as.double(epsilon), as.double(sigma.hat),
+                          as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(0) )$salida
             }
-	      if(typePhi=='Huber'){
-		  AUX <- .C("kernel_huber_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
-                                  as.double(yp), as.double(beta.ini), as.double(windows[j,]), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, degree+1)) )$salida
-	        aa[i] <- AUX[1]
-		  if(qderivate){
-		    aa.derivate[i] <- AUX[degree+1] 
-    		  }
- 	      }
-	      if(typePhi=='Tukey'){
-		  AUX <- .C("kernel_tukey_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
-                                  as.double(yp), as.double(beta.ini), as.double(windows[j,]), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, degree+1)) )$salida
-	        aa[i] <- AUX[1]
-		  if(qderivate){
-		    aa.derivate[i] <- AUX[degree+1] 
-    		  }
- 	      }
+            if(typePhi=='Tukey'){
+              aa[i] <- .C("kernel_tukey_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                          as.double(yp), as.double(mu.ini), as.double(windows),
+                          as.double(epsilon), as.double(sigma.hat),
+                          as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(0) )$salida
+            }
+            if(i==k){alpha.aux[k] <- aa[i]}
+          }
+          if(type=='1'){
+            mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                         as.double(yp), as.double(windows),
+                         as.double(prob), salida=as.double(0) )$salida
+            beta.ini <- rep(0,q+1)
+            beta.ini[1] <- mu.ini
+            if(typePhi=='Huber'){
+              aa[i] <- .C("kernel_huber_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                          as.double(yp), as.double(beta.ini), as.double(windows),
+                          as.double(epsilon), as.double(sigma.hat),
+                          as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
+
+            }
+            if(typePhi=='Tukey'){
+              aa[i] <- .C("kernel_tukey_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                          as.double(yp), as.double(beta.ini), as.double(windows),
+                          as.double(epsilon), as.double(sigma.hat),
+                          as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
+            }
+            if(i==k){alpha.aux[k] <- aa[i]}
+          }
+          if(type=='alpha'){
+            mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                         as.double(yp), as.double(windows),
+                         as.double(prob), salida=as.double(0) )$salida
+            beta.ini <- rep(0,degree+1)
+            beta.ini[1] <- mu.ini
+            if(is.null(dim(windows))){
+              windows <- t(matrix(windows,q,q))
+            }
+            if(typePhi=='Huber'){
+              AUX <- .C("kernel_huber_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
+                        as.double(yp), as.double(beta.ini), as.double(windows[j,]),
+                        as.double(epsilon), as.double(sigma.hat),
+                        as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, degree+1)) )$salida
+              aa[i] <- AUX[1]
+              if(qderivate){
+                aa.derivate[i] <- AUX[degree+1]
+              }
+            }
+            if(typePhi=='Tukey'){
+              AUX <- .C("kernel_tukey_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
+                        as.double(yp), as.double(beta.ini), as.double(windows[j,]),
+                        as.double(epsilon), as.double(sigma.hat),
+                        as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, degree+1)) )$salida
+              aa[i] <- AUX[1]
+              if(qderivate){
+                aa.derivate[i] <- AUX[degree+1]
+              }
+            }
             if(i==k){
-		  alphal.aux[i,j] <- aa[i]
-	      }
-	    }
-	  }
-	  g.matriz[k,j]<-mean(aa,na.rm=TRUE)
-	  if(qderivate){
-	    g.derivate[k,j]<-mean(aa.derivate,na.rm=TRUE)
-	  }
+              alphal.aux[i,j] <- aa[i]
+            }
+          }
+        }
+        g.matriz[k,j]<-mean(aa,na.rm=TRUE)
+        if(qderivate){
+          g.derivate[k,j]<-mean(aa.derivate,na.rm=TRUE)
+        }
       }
     }
     alphal <- NULL
@@ -699,7 +720,7 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
   #Predictions:
 
   prediccion <- NULL
-  
+
   #If a Qmeasure is provided
   if(!is.null(Qmeasure)){
     aa <- rep(0,nq)
@@ -707,14 +728,14 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
     if(!is.null(punto)) {
       if(is.null(dim(punto))){
         prediccion <- mpunto <- t(as.matrix(punto))
-	  if(qderivate){
+        if(qderivate){
           prediccion.deri <- prediccion
-	  }
+        }
       } else {
         prediccion <- mpunto <- punto
-	  if(qderivate){
+        if(qderivate){
           prediccion.deri <- prediccion
-	  }
+        }
       }
       np <- dim(mpunto)[1]
       for(k in 1:np){
@@ -722,76 +743,76 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
           for(i in 1:nq){
             puntoj <- grilla[i,]
             puntoj[j] <- mpunto[k,j]
-	      if(type=='0'){
+            if(type=='0'){
               #Inicializo el mu
-	        mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), 
-                                  as.double(prob), salida=as.double(0) )$salida
+              mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                           as.double(yp), as.double(windows),
+                           as.double(prob), salida=as.double(0) )$salida
 
-	        if(typePhi=='Huber'){
-	          aa[i] <- .C("kernel_huber_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(mu.ini), as.double(windows), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(0) )$salida
- 	        }
-	        if(typePhi=='Tukey'){
-	          aa[i] <- .C("kernel_tukey_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(mu.ini), as.double(windows), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(0) )$salida	    
-	        }
+              if(typePhi=='Huber'){
+                aa[i] <- .C("kernel_huber_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                            as.double(yp), as.double(mu.ini), as.double(windows),
+                            as.double(epsilon), as.double(sigma.hat),
+                            as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(0) )$salida
+              }
+              if(typePhi=='Tukey'){
+                aa[i] <- .C("kernel_tukey_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                            as.double(yp), as.double(mu.ini), as.double(windows),
+                            as.double(epsilon), as.double(sigma.hat),
+                            as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(0) )$salida
+              }
             }
             if(type=='1'){
-	        mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), 
-                                  as.double(prob), salida=as.double(0) )$salida
-	        beta.ini <- rep(0,q+1)
-	        beta.ini[1] <- mu.ini
-	        if(typePhi=='Huber'){
-	          aa[i] <- .C("kernel_huber_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(beta.ini), as.double(windows), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
-		  }
-	        if(typePhi=='Tukey'){
-	          aa[i] <- .C("kernel_tukey_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(beta.ini), as.double(windows), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
-		  }
-	      }
-	      if(type=='alpha'){
-	        mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
-                                  as.double(yp), as.double(windows), 
-                                  as.double(prob), salida=as.double(0) )$salida
-	        beta.ini <- rep(0,degree+1)
-	        beta.ini[1] <- mu.ini
-	        if(typePhi=='Huber'){
-		    AUX <- .C("kernel_huber_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
-                                  as.double(yp), as.double(beta.ini), as.double(windows[j,]), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, degree+1)) )$salida
-	          aa[i] <- AUX[1]
-		    if(qderivate){
-		      aa.deri[i] <- AUX[degree+1]
-  		    }
- 	        }
-	        if(typePhi=='Tukey'){
-		    AUX <- .C("kernel_tukey_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
-                                  as.double(yp), as.double(beta.ini), as.double(windows[j,]), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, degree+1)) )$salida
-	          aa[i] <- AUX[1]
-		    if(qderivate){
-		      aa.deri[i] <- AUX[degree+1]
-  		    }
- 	        }
-	      }
+              mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                           as.double(yp), as.double(windows),
+                           as.double(prob), salida=as.double(0) )$salida
+              beta.ini <- rep(0,q+1)
+              beta.ini[1] <- mu.ini
+              if(typePhi=='Huber'){
+                aa[i] <- .C("kernel_huber_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                            as.double(yp), as.double(beta.ini), as.double(windows),
+                            as.double(epsilon), as.double(sigma.hat),
+                            as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
+              }
+              if(typePhi=='Tukey'){
+                aa[i] <- .C("kernel_tukey_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                            as.double(yp), as.double(beta.ini), as.double(windows),
+                            as.double(epsilon), as.double(sigma.hat),
+                            as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
+              }
+            }
+            if(type=='alpha'){
+              mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                           as.double(yp), as.double(windows),
+                           as.double(prob), salida=as.double(0) )$salida
+              beta.ini <- rep(0,degree+1)
+              beta.ini[1] <- mu.ini
+              if(typePhi=='Huber'){
+                AUX <- .C("kernel_huber_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
+                          as.double(yp), as.double(beta.ini), as.double(windows[j,]),
+                          as.double(epsilon), as.double(sigma.hat),
+                          as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, degree+1)) )$salida
+                aa[i] <- AUX[1]
+                if(qderivate){
+                  aa.deri[i] <- AUX[degree+1]
+                }
+              }
+              if(typePhi=='Tukey'){
+                AUX <- .C("kernel_tukey_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
+                          as.double(yp), as.double(beta.ini), as.double(windows[j,]),
+                          as.double(epsilon), as.double(sigma.hat),
+                          as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, degree+1)) )$salida
+                aa[i] <- AUX[1]
+                if(qderivate){
+                  aa.deri[i] <- AUX[degree+1]
+                }
+              }
+            }
           }
           prediccion[k,j] <- mean(aa,na.rm=TRUE)-alpha
-	    if(qderivate){
-	      prediccion.deri[k,j] <- mean(aa.deri,na.rm=TRUE)
-	    }
+          if(qderivate){
+            prediccion.deri[k,j] <- mean(aa.deri,na.rm=TRUE)
+          }
         }
       }
     }
@@ -801,14 +822,14 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
     if(!is.null(punto)) {
       if(is.null(dim(punto))){
         prediccion <- mpunto <- t(as.matrix(punto))
-	  if(qderivate){
+        if(qderivate){
           prediccion.deri <- prediccion
-	  }
+        }
       } else {
         prediccion <- mpunto <- punto
-	  if(qderivate){
+        if(qderivate){
           prediccion.deri <- prediccion
-	  }
+        }
       }
       np <- dim(mpunto)[1]
       for(k in 1:np){
@@ -816,76 +837,76 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
           for(i in 1:n){
             puntoj <- XX[i,]
             puntoj[j] <- mpunto[k,j]
-	      if(type=='0'){
+            if(type=='0'){
               #Inicializo el mu
-	        mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), 
-                                  as.double(prob), salida=as.double(0) )$salida
+              mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                           as.double(yp), as.double(windows),
+                           as.double(prob), salida=as.double(0) )$salida
 
-	        if(typePhi=='Huber'){
-	          aa[i] <- .C("kernel_huber_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(mu.ini), as.double(windows), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(0) )$salida
- 	        }
-	        if(typePhi=='Tukey'){
-	          aa[i] <- .C("kernel_tukey_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(mu.ini), as.double(windows), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(0) )$salida	    
-	        }
+              if(typePhi=='Huber'){
+                aa[i] <- .C("kernel_huber_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                            as.double(yp), as.double(mu.ini), as.double(windows),
+                            as.double(epsilon), as.double(sigma.hat),
+                            as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(0) )$salida
+              }
+              if(typePhi=='Tukey'){
+                aa[i] <- .C("kernel_tukey_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                            as.double(yp), as.double(mu.ini), as.double(windows),
+                            as.double(epsilon), as.double(sigma.hat),
+                            as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(0) )$salida
+              }
             }
             if(type=='1'){
-	        mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(windows), 
-                                  as.double(prob), salida=as.double(0) )$salida
-	        beta.ini <- rep(0,q+1)
-	        beta.ini[1] <- mu.ini
-	        if(typePhi=='Huber'){
-	          aa[i] <- .C("kernel_huber_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(beta.ini), as.double(windows), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
-		  }
-	        if(typePhi=='Tukey'){
-	          aa[i] <- .C("kernel_tukey_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss), 
-                                  as.double(yp), as.double(beta.ini), as.double(windows), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
-		  }
-	      }
-	      if(type=='alpha'){
-	        mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
-                                  as.double(yp), as.double(windows), 
-                                  as.double(prob), salida=as.double(0) )$salida
-	        beta.ini <- rep(0,degree+1)
-	        beta.ini[1] <- mu.ini
-	        if(typePhi=='Huber'){
-		    AUX <- .C("kernel_huber_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
-                                  as.double(yp), as.double(beta.ini), as.double(windows[j,]), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, degree+1)) )$salida
-	          aa[i] <- AUX[1]
-		    if(qderivate){
-		      aa.deri[i] <- AUX[degree+1]
-  		    }
- 	        }
-	        if(typePhi=='Tukey'){
-		    AUX <- .C("kernel_tukey_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
-                                  as.double(yp), as.double(beta.ini), as.double(windows[j,]), 
-                                  as.double(epsilon), as.double(sigma.hat), 
-                                  as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, degree+1)) )$salida
-	          aa[i] <- AUX[1]
-		    if(qderivate){
-		      aa.deri[i] <- AUX[degree+1]
-  		    }
- 	        }
-	      }
+              mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                           as.double(yp), as.double(windows),
+                           as.double(prob), salida=as.double(0) )$salida
+              beta.ini <- rep(0,q+1)
+              beta.ini[1] <- mu.ini
+              if(typePhi=='Huber'){
+                aa[i] <- .C("kernel_huber_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                            as.double(yp), as.double(beta.ini), as.double(windows),
+                            as.double(epsilon), as.double(sigma.hat),
+                            as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
+              }
+              if(typePhi=='Tukey'){
+                aa[i] <- .C("kernel_tukey_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                            as.double(yp), as.double(beta.ini), as.double(windows),
+                            as.double(epsilon), as.double(sigma.hat),
+                            as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
+              }
+            }
+            if(type=='alpha'){
+              mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
+                           as.double(yp), as.double(windows),
+                           as.double(prob), salida=as.double(0) )$salida
+              beta.ini <- rep(0,degree+1)
+              beta.ini[1] <- mu.ini
+              if(typePhi=='Huber'){
+                AUX <- .C("kernel_huber_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
+                          as.double(yp), as.double(beta.ini), as.double(windows[j,]),
+                          as.double(epsilon), as.double(sigma.hat),
+                          as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, degree+1)) )$salida
+                aa[i] <- AUX[1]
+                if(qderivate){
+                  aa.deri[i] <- AUX[degree+1]
+                }
+              }
+              if(typePhi=='Tukey'){
+                AUX <- .C("kernel_tukey_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
+                          as.double(yp), as.double(beta.ini), as.double(windows[j,]),
+                          as.double(epsilon), as.double(sigma.hat),
+                          as.double(prob), as.double(k.t), as.integer(max.it),salida=as.double(rep(0, degree+1)) )$salida
+                aa[i] <- AUX[1]
+                if(qderivate){
+                  aa.deri[i] <- AUX[degree+1]
+                }
+              }
+            }
           }
           prediccion[k,j] <- mean(aa,na.rm=TRUE)-alpha
-	    if(qderivate){
-	      prediccion.deri[k,j] <- mean(aa.deri,na.rm=TRUE)
-	    }
+          if(qderivate){
+            prediccion.deri[k,j] <- mean(aa.deri,na.rm=TRUE)
+          }
         }
       }
     }
