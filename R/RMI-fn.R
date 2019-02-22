@@ -1,20 +1,3 @@
-# Hello, world!
-#
-# This is an example function named 'hello'
-# which prints 'Hello, world!'.
-#
-# You can learn more about package authoring with RStudio at:
-#
-#   http://r-pkgs.had.co.nz/
-#
-# Some useful keyboard shortcuts for package authoring:
-#
-#   Build and Reload Package:  'Ctrl + Shift + B'
-#   Check Package:             'Ctrl + Shift + E'
-#   Test Package:              'Ctrl + Shift + T'
-
-# Tukey's Psi
-
 #' @param variable
 #' @return value
 #' @export
@@ -27,6 +10,10 @@ psi.tukey <- function(r, k=4.685){
   return(w)
 }
 
+#' @param variable
+#' @return value
+#' @export
+
 #Tukey's weight function "Psi(r)/r"
 psi.w <- function(r, k= 4.685){
   u <- abs(r/k)
@@ -35,16 +22,35 @@ psi.w <- function(r, k= 4.685){
   return(w)
 }
 
+
+#' @param variable
+#' @return value
+#' @export
+
 # Huber's Psi
 psi.huber <- function(r, k=1.345)
   pmin(k, pmax(-k, r))
+
+
+#' @param variable
+#' @return value
+#' @export
 
 #Huber's weight function "Psi(r)/r"
 psi.huber.w <- function(r, k=1.345)
   pmin(1, k/abs(r))
 
+
+#' @param variable
+#' @return value
+#' @export
+
 #Euclidean norm
 my.norm.2 <- function(x) sqrt(sum(x^2))
+
+#' @param variable
+#' @return value
+#' @export
 
 #Epanechnikov kernel
 k.epan<-function(x) {
@@ -52,6 +58,10 @@ k.epan<-function(x) {
   tmp <- a*(abs(x)<=1)
   return(tmp)
 }
+
+#' @param variable
+#' @return value
+#' @export
 
 #Order 2 kernel = Epanechnikov kernel
 kernel2<-function(t){
@@ -61,12 +71,20 @@ kernel2<-function(t){
 
 #- Higher order kernels -#
 
+#' @param variable
+#' @return value
+#' @export
+
 #Order 4
 kernel4<-function(x) {
   a <- (15/32)*(1-x^2)*(3-7*x^2)
   tmp <- a*(abs(x)<= 1)
   return(tmp)
 }
+
+#' @param variable
+#' @return value
+#' @export
 
 #Order 6
 kernel6<-function(x) {
@@ -75,12 +93,20 @@ kernel6<-function(x) {
   return(tmp)
 }
 
+#' @param variable
+#' @return value
+#' @export
+
 #Order 8
 kernel8<-function(x) {
   a <- (315/4096)*(1-x^2)*(35-385*x^2+1001*x^4-715*x^6)
   tmp <- a*(abs(x)<=1)
   return(tmp)
 }
+
+#' @param variable
+#' @return value
+#' @export
 
 #Order 10
 kernel10<-function(x) {
@@ -89,9 +115,12 @@ kernel10<-function(x) {
   return(tmp)
 }
 
+#' @param variable
+#' @return value
+#' @export
 
 ## Classic Marginal Integration
-margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
+margint.cl <- function(Xp, yp, point=NULL, windows, epsilon=1e-6, prob=NULL,
                        type='0', degree=NULL, qderivate=FALSE, orderkernel=2,
                        Qmeasure=NULL) {
   # Xp = covariance matrix (n x q).
@@ -111,48 +140,57 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
   # qderivate = if TRUE, it calculates g^(q+1)/(q+1)! for each component
   #  only for the type 'alpha' method.
   # Qmeasure = if NULL, the integration procedure is over the sample.
-
-  if(type=='alpha'){
-    if(is.null(degree)){
-      stop("Degree of local polynomial missing")
+  
+  if(!is.null(dim(Xp))){
+    if(type=='alpha'){
+      if(is.null(degree)){
+        stop("Degree of local polynomial missing")
+      }else{
+        if( length(windows)==1 ){
+          stop("Windows should be a vector o a matrix")
+        }
+      }
     }else{
-      if( length(windows)==1  ){
-        stop("Windows should be a vector or a matrix")
+      if( (is.matrix(windows)) | (length(windows)==1)  ){
+        stop("Windows should be a vector")
       }
     }
   }else{
-    if( (is.matrix(windows)) | (length(windows)==1) ){
-      stop("Windows should be a vector")
+    if(!is.null(dim(windows))){
+      stop("Windows should be a number")
     }
   }
-
+  
+  
   n <- length(yp)
+  Xp <- as.matrix(Xp)
   q <- dim(Xp)[2]
   corte <- 10*epsilon
   punto <- point
-
+  
   # Remove observations with missing responses
   yy <- yp
   XX <- Xp
   yp <- yp[ tmp<-!is.na(yp) ]
-  Xp <- Xp[tmp, ]
+  Xp <- Xp[tmp, , drop=FALSE]
   n.miss <- length(yp)
   if(is.null(prob)){prob <- rep(1,n.miss)
   } else {
     prob <- prob[tmp]
   }
   if(dim(t(as.matrix(windows)))[2]!=q){return("Error Dimension of Bandwidths")}
-
+  
+  
   #Initializations
   puntoj <- rep(0,q)
   pesosi <- rep(1,n.miss)
-
+  
   # If a Qmeasure is provided
   if(!is.null(Qmeasure)){
-
+    
     grilla <- rbind(Qmeasure, XX)
     nQ <- dim(grilla)[1]
-
+    
     alphal.aux <- matrix(0,nQ,q)
     g.matriz.bis <- matrix(0,nQ,q)
     g.matriz <- matrix(0,n,q)
@@ -160,7 +198,7 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
     alpha.aux <- rep(0, nQ)
     nq <- dim(Qmeasure)[1]
     aa <- rep(0,n)
-
+    
     if(qderivate){
       g.derivate.bis <- matrix(0,nQ,q)
       g.derivate <- matrix(0,n,q)
@@ -168,8 +206,8 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
     }else{
       g.derivate <- NULL
     }
-
-
+    
+    
     for(k in 1:nQ){
       for(j in 1:q){
         for(i in 1:nq){
@@ -204,20 +242,20 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
         }
       }
     }
-
+    
     alphal <- NULL
     if(type=='alpha'){
       alpha.aux <- colMeans(alphal.aux[1:nq,],na.rm=TRUE)
       alphal <- alpha.aux
     }
-
+    
     alpha <- mean(alpha.aux,na.rm=TRUE)
     g.matriz <- g.matriz.bis[(nq+1):nQ,] - alpha
     if(qderivate){
       g.derivate <- g.derivate.bis[(nq+1):nQ,]
     }
   }else{ #That is, if a Qmeasure is not provided
-
+    
     alphal.aux <- matrix(0,n,q)
     g.matriz <- matrix(0,n,q)
     if(qderivate){
@@ -229,7 +267,7 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
     aux.b <- rep(0,n)
     aa <- rep(0,n)
     alpha.aux <- rep(0, n)
-
+    
     for(k in 1:n){
       for(j in 1:q){
         for(i in 1:n){
@@ -264,21 +302,21 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
         }
       }
     }
-
+    
     alphal <- NULL
     if(type=='alpha'){
       alpha.aux <- colMeans(alphal.aux,na.rm=TRUE)
       alphal <- alpha.aux
     }
-
+    
     alpha <- mean(alpha.aux,na.rm=TRUE)
     g.matriz <- g.matriz - alpha
   }
-
+  
   #Predictions:
-
+  
   prediccion <- NULL
-
+  
   #If a Qmeasure is provided
   if(!is.null(Qmeasure)){
     aa <- rep(0,nq)
@@ -301,7 +339,7 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
           for(i in 1:nq){
             puntoj <- Qmeasure[i,]
             puntoj[j] <- mpunto[k,j]
-
+            
             if(type=='0'){
               aa[i] <- .C("kernel_cl_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
                           as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(0) )$salida
@@ -310,7 +348,7 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
               aa[i] <- .C("kernel_cl_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
                           as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(rep(0, q+1)))$salida[1]
             }
-
+            
             if(type=='alpha'){
               AUX <- .C("kernel_cl_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
                         as.double(yp), as.double(windows[j,]), as.double(epsilon), as.double(prob), salida=as.double(rep(0, degree+1)) )$salida
@@ -348,7 +386,7 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
           for(i in 1:n){
             puntoj <- XX[i,]
             puntoj[j] <- mpunto[k,j]
-
+            
             if(type=='0'){
               aa[i] <- .C("kernel_cl_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
                           as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(0) )$salida
@@ -357,7 +395,7 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
               aa[i] <- .C("kernel_cl_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
                           as.double(yp), as.double(windows), as.double(epsilon), as.double(prob),salida=as.double(rep(0, q+1)))$salida[1]
             }
-
+            
             if(type=='alpha'){
               AUX <- .C("kernel_cl_alpha_multi", puntoj, as.double(Xp), as.integer(j), as.integer(degree), as.integer(q), as.integer(n.miss), as.integer(orderkernel),
                         as.double(yp), as.double(windows[j,]), as.double(epsilon), as.double(prob), salida=as.double(rep(0, degree+1)) )$salida
@@ -375,32 +413,45 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon, prob=NULL,
       }
     } #End of if
   } #End of else
-
+  
   if(!is.null(point)){
     if(type=='alpha'){
       if(!qderivate){
-        return(list(mu=alpha,g.matrix=g.matriz, prediction=prediccion, mul=alphal))
+        object <- list(mu=alpha,g.matrix=g.matriz, prediction=prediccion, mul=alphal, Xp=Xp, yp=yp)
+        class(object) <- c("margint.cl", "margint", "list")
+        return(object)
       } else {
-        return(list(mu=alpha,g.matrix=g.matriz, prediction=prediccion, mul=alphal,g.derivate=g.derivate, prediction.derivate=prediccion.deri))
+        object <- list(mu=alpha,g.matrix=g.matriz, prediction=prediccion, mul=alphal,g.derivate=g.derivate, prediction.derivate=prediccion.deri, Xp=Xp, yp=yp)
+        class(object) <- c("margint.cl", "margint", "list")
+        return(object)
       }
     } else {
-      return(list(mu=alpha,g.matrix=g.matriz, prediction=prediccion))
+      object <- list(mu=alpha,g.matrix=g.matriz, prediction=prediccion, Xp=Xp, yp=yp)
+      class(object) <- c("margint.cl", "margint", "list")
+      return(object)
     }
   } else {
     if(type=='alpha'){
       if(!qderivate){
-        return(list(mu=alpha,g.matrix=g.matriz, mul=alphal))
+        object <- list(mu=alpha,g.matrix=g.matriz, mul=alphal, Xp=Xp, yp=yp)
+        class(object) <- c("margint.cl", "margint", "list")
+        return(object)
       } else {
-        return(list(mu=alpha,g.matrix=g.matriz, mul=alphal,g.derivate=g.derivate))
+        object <- list(mu=alpha,g.matrix=g.matriz, mul=alphal,g.derivate=g.derivate, Xp=Xp, yp=yp)
+        class(object) <- c("margint.cl", "margint", "list")
+        return(object)
       }
     } else {
-      return(list(mu=alpha,g.matrix=g.matriz))
+      object <- list(mu=alpha,g.matrix=g.matriz, Xp=Xp, yp=yp)
+      class(object) <- c("margint.cl", "margint", "list")
+      return(object)
     }
   }
-
-
 }
 
+#' @param variable
+#' @return value
+#' @export
 
 
 ## Robust Marginal Integration
@@ -408,7 +459,7 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
                         win.sigma=NULL, epsilon=1e-06, type='0', degree=NULL, typePhi='Huber',
                         k.h=1.345, k.t = 4.685, max.it=20, qderivate=FALSE, orderkernel=2,
                         Qmeasure=NULL){
-
+  
   # Xp = covariance matrix (n x q).
   # yp = response vector (NA's are allowed).
   # point = vector of length q or a matrix with q columns where predictions
@@ -433,27 +484,33 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
   # k.t = tuning constant for the Tukey function.
   # typePhi = 'Huber' or 'Tukey'
   # max.it = max number of iterations for the robust estimation step.
-
-
-  if(type=='alpha'){
-    if(is.null(degree)){
-      stop("Degree of local polynomial missing")
+  
+  if(!is.null(dim(Xp))){
+    if(type=='alpha'){
+      if(is.null(degree)){
+        stop("Degree of local polynomial missing")
+      }else{
+        if( length(windows)==1 ){
+          stop("Windows should be a vector or a matrix")
+        }
+      }
     }else{
-      if( length(windows)==1 ){
-        stop("Windows should be a vector o a matrix")
+      if( (is.matrix(windows)) | (length(windows)==1) ){
+        stop("Windows should be a vector")
       }
     }
   }else{
-    if( (is.matrix(windows)) | (length(windows)==1) ){
-      stop("Windows should be a vector")
+    if(!is.null(dim(windows))){
+      stop("Windows should be a number")
     }
   }
-
+  
   n <- length(yp)
+  Xp <- as.matrix(Xp)
   q <- dim(Xp)[2]
   corte <- 10*epsilon
   punto <- point
-
+  
   if(is.null(win.sigma)){
     if(is.null(dim(windows))){
       win.sigma <- windows
@@ -461,24 +518,24 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
       win.sigma <- diag(windows)
     }
   }
-
+  
   # Remove observations with missing responses
   yy<-yp
   XX <- Xp
   yp <- yp[ tmp<-!is.na(yp) ]
-  Xp <- Xp[tmp, ]
+  Xp <- Xp[tmp, ,drop=FALSE]
   n.miss <- length(yp)
   if(is.null(prob)){prob <- rep(1,n.miss)
   }else{
     prob <- prob[tmp]
   }
   if(dim(t(as.matrix(windows)))[2]!=q){return("Error Dimension of Bandwidths")}
-
+  
   #Initializations
   puntoj <- rep(0,q)
   aa <- rep(0,n)
   pesosi <- rep(1,n.miss)
-
+  
   # Estimate residual standard error
   if(is.null(sigma.hat)){
     ab <- rep(0,n.miss)
@@ -492,14 +549,14 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
     sigma.hat <- mad(yp - ab)
     if( sigma.hat < 1e-10 ){sigma.hat <- 1e-10} # sigma.hat <- sd(yp-ab,na.rm=TRUE)
   }
-
-
+  
+  
   #If a Qmeasure is provided
   if(!is.null(Qmeasure)){
-
+    
     grilla <- rbind(Qmeasure, XX)
     nQ <- dim(grilla)[1]
-
+    
     alphal.aux <- matrix(0,nQ,q)
     g.matriz.bis <- matrix(0,nQ,q)
     g.matriz <- matrix(0,n,q)
@@ -519,7 +576,7 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
         for(i in 1:nq){
           puntoj <- Qmeasure[i,]
           puntoj[j]<-grilla[k,j]
-
+          
           #Inicializo el mu
           if(type=='0'){
             mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
@@ -550,7 +607,7 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
                           as.double(yp), as.double(beta.ini), as.double(windows),
                           as.double(epsilon), as.double(sigma.hat),
                           as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
-
+              
             }
             if(typePhi=='Tukey'){
               aa[i] <- .C("kernel_tukey_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
@@ -600,7 +657,7 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
         }
       }
     }
-
+    
     alphal <- NULL
     if(type=='alpha'){
       alpha.aux <- colMeans(alphal.aux[1:nq,],na.rm=TRUE)
@@ -621,13 +678,13 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
       g.derivate <- NULL
     }
     alphal.aux <- matrix(0,n,q)
-
+    
     for(k in 1:n){
       for(j in 1:q){
         for(i in 1:n){
           puntoj <- XX[i,]
           puntoj[j]<-XX[k,j]
-
+          
           #Inicializo el mu
           if(type=='0'){
             mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
@@ -658,7 +715,7 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
                           as.double(yp), as.double(beta.ini), as.double(windows),
                           as.double(epsilon), as.double(sigma.hat),
                           as.double(prob), as.double(k.h), as.integer(max.it),salida=as.double(rep(0, q+1)) )$salida[1]
-
+              
             }
             if(typePhi=='Tukey'){
               aa[i] <- .C("kernel_tukey_lin_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
@@ -716,11 +773,11 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
     alpha <- mean(alpha.aux,na.rm=TRUE)
     g.matriz <- g.matriz - alpha
   }#End of else
-
+  
   #Predictions:
-
+  
   prediccion <- NULL
-
+  
   #If a Qmeasure is provided
   if(!is.null(Qmeasure)){
     aa <- rep(0,nq)
@@ -748,7 +805,7 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
               mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
                            as.double(yp), as.double(windows),
                            as.double(prob), salida=as.double(0) )$salida
-
+              
               if(typePhi=='Huber'){
                 aa[i] <- .C("kernel_huber_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
                             as.double(yp), as.double(mu.ini), as.double(windows),
@@ -842,7 +899,7 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
               mu.ini <- .C("ini_mu_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
                            as.double(yp), as.double(windows),
                            as.double(prob), salida=as.double(0) )$salida
-
+              
               if(typePhi=='Huber'){
                 aa[i] <- .C("kernel_huber_pos_multi", puntoj, as.double(Xp), as.integer(q), as.integer(n.miss),
                             as.double(yp), as.double(mu.ini), as.double(windows),
@@ -911,31 +968,122 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
       }
     }
   }
-
-
+  
+  
   if(!is.null(point)){
     if(type=='alpha'){
       if(!qderivate){
-        return(list(mu=alpha, g.matrix=g.matriz, sigma.hat=sigma.hat, prediction=prediccion, mul=alphal))
+        object <- list(mu=alpha, g.matrix=g.matriz, sigma.hat=sigma.hat, prediction=prediccion, mul=alphal, Xp=Xp, yp=yp)
+        class(object) <- c("margint.rob", "margint", "list")
+        return(object)
       } else {
-        return(list(mu=alpha, g.matrix=g.matriz, sigma.hat=sigma.hat, prediction=prediccion, mul=alphal, g.derivate=g.derivate, prediction.derivate=prediccion.deri))
+        object <- list(mu=alpha, g.matrix=g.matriz, sigma.hat=sigma.hat, prediction=prediccion, mul=alphal, g.derivate=g.derivate, prediction.derivate=prediccion.deri, Xp=Xp, yp=yp)
+        class(object) <- c("margint.rob", "margint", "list")
+        return(object)
       }
     } else {
-      return(list(mu=alpha, g.matrix=g.matriz, sigma.hat=sigma.hat, prediction=prediccion))
+      object <- list(mu=alpha, g.matrix=g.matriz, sigma.hat=sigma.hat, prediction=prediccion, Xp=Xp, yp=yp)
+      class(object) <- c("margint.rob", "margint", "list")
+      return(object)
     }
   } else {
     if(type=='alpha'){
       if(!qderivate){
-        return(list(mu=alpha, g.matrix=g.matriz, sigma.hat=sigma.hat, mul=alphal))
+        object <- list(mu=alpha, g.matrix=g.matriz, sigma.hat=sigma.hat, mul=alphal, Xp=Xp, yp=yp)
+        class(object) <- c("margint.rob", "margint", "list")
+        return(object)
       } else {
-        return(list(mu=alpha, g.matrix=g.matriz, sigma.hat=sigma.hat, mul=alphal,g.derivate=g.derivate))
+        object <- list(mu=alpha, g.matrix=g.matriz, sigma.hat=sigma.hat, mul=alphal,g.derivate=g.derivate, Xp=Xp, yp=yp)
+        class(object) <- c("margint.rob", "margint", "list")
+        return(object)
       }
     } else {
-      return(list(mu=alpha, g.matrix=g.matriz, sigma.hat=sigma.hat))
+      object <- list(mu=alpha, g.matrix=g.matriz, sigma.hat=sigma.hat, Xp=Xp, yp=yp)
+      class(object) <- c("margint.rob", "margint", "list")
+      return(object)
     }
   }
-
-
 }
 
 
+#S3 Methods
+
+#' Residuals for objects of class \code{margint}
+#'
+#' This function returns the residuals of the fitted additive model using
+#' the classical or robust backfitting estimators, as computed with \code{\link{backf.cl}} or
+#' \code{\link{backf.rob}}.
+#'
+#' @param object an object of class \code{backf}, a result of a call to \code{\link{backf.cl}} or \code{\link{backf.rob}}.
+#' @param ... additional other arguments. Currently ignored.
+#'
+#' @return A vector of residuals.
+#'
+#' @author Alejandra Mercedes Martinez \email{ale_m_martinez@hotmail.com}
+#'
+#' @export
+
+residuals.margint <- function(object, ...){
+  return( object$yp - rowSums(object$g.matrix) -object$mu )
+}
+
+
+#' @param variable
+#' @return value
+#' @export
+
+predict.margint <- function(object, ...){
+  return( rowSums(object$g.matrix) + object$mu )
+}
+
+#' @param variable
+#' @return value
+#' @export
+
+plot.margint <- function(object, which=1:np, ask=FALSE,...){
+  Xp <- object$Xp
+  np <- dim(Xp)[2]
+  opar <- par(ask=ask)
+  on.exit(par(opar))
+  these <- rep(FALSE, np)
+  these[ which ] <- TRUE
+  for(i in 1:np) {
+    if(these[i]) {
+      ord <- order(Xp[,i])
+      if (is.null(colnames(Xp)) ){
+        x_name <- bquote(paste('x')[.(i)])
+        #paste("x",i,sep="")
+      } else {
+        x_name <- colnames(Xp)[i]
+      }
+      y_name <- bquote(paste(hat('g')[.(i)]))
+      res <- object$yp - rowSums(object$g.matrix[,-i, drop=FALSE])-object$mu
+      lim_cl <- c(min(res), max(res))
+      plot(Xp[ord,i],object$g.matrix[ord,i],type="l",lwd=3,main="",xlab=x_name,ylab=y_name, ylim=lim_cl)
+      points(Xp[,i], res, pch=20,col='gray45')
+    }
+  }
+}
+
+#' @param variable
+#' @return value
+#' @export
+
+summary.margint <- function(object,...){
+  NextMethod()
+}
+
+summary.margint.cl <- function(object,...){
+  message("Estimate of the intercept: ", round(object$mu,5))
+  res <- residuals(object)
+  message("Residuals:")
+  summary(res)
+}
+
+summary.margint.rob <- function(object,...){
+  message("Estimate of the intercept: ", round(object$mu,5))
+  message("Estimate of the residual standard error: ", round(object$sigma,5))
+  res <- residuals(object)
+  message("Residuals:")
+  summary(res)
+}
