@@ -18,5 +18,5 @@ A vector of fitted values.
 This function returns the fitted values given the covariates of the original sample under an additive model using a classical or robust marginal integration procedure estimator computed with \code{\link{margint.cl}} or \code{\link{margint.rob}}.
 }
 \author{
-Alejandra Mercedes Martinez \email{ale_m_martinez@hotmail.com}
+Alejandra Mercedes Martinez \email{alemartinez@unlu.edu.ar}
 }

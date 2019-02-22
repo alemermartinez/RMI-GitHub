@@ -20,5 +20,5 @@ classical or robust marginal integration estimators, as computed with \code{\lin
 \code{\link{margint.rob}}.
 }
 \author{
-Alejandra Mercedes Martinez \email{ale_m_martinez@hotmail.com}
+Alejandra Mercedes Martinez \email{alemartinez@unlu.edu.ar}
 }
