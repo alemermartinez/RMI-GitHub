@@ -1,10 +1,9 @@
-#' @useDynLib RBF, .registration = TRUE
+#' @useDynLib RMI, .registration = TRUE
 
-#' @param variable
-#' @return value
+
 #' @export
-
 # Tukey's Psi
+
 psi.tukey <- function(r, k=4.685){
   u <- abs(r/k)
   w <- r*((1-u)*(1+u))^2
@@ -1010,8 +1009,19 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
 
 #S3 Methods
 
-#' @param variable
-#' @return value
+#' Residuals of a marginal integration fit in an additive model
+#'
+#' This function returns the residuals of the fitted additive model using one of the three
+#' classical or robust marginal integration estimators, as computed with \code{\link{margint.cl}} or
+#' \code{\link{margint.rob}}.
+#'
+#' @param object an object of class \code{margint}, a result of a call to \code{\link{margint.cl}} or \code{\link{margint.rob}}.
+#' @param ... additional other arguments.
+#'
+#' @return A vector of residuals.
+#'
+#' @author Alejandra Mercedes Martinez \email{ale_m_martinez@hotmail.com}
+#'
 #' @export
 
 residuals.margint <- function(object, ...){
@@ -1019,18 +1029,35 @@ residuals.margint <- function(object, ...){
 }
 
 
-#' @param variable
-#' @return value
+#' Fitted values for objects of class \code{margint}
+#'
+#' This function returns the fitted values given the covariates of the original sample under an additive model using a classical or robust marginal integration procedure estimator computed with \code{\link{margint.cl}} or \code{\link{margint.rob}}.
+#'
+#' @param object an object of class \code{margint}, a result of a call to \code{\link{margint.cl}} or \code{\link{margint.rob}}.
+#' @param ... additional other arguments.
+#'
+#' @return A vector of fitted values.
+#'
+#' @author Alejandra Mercedes Martinez \email{ale_m_martinez@hotmail.com}
+#'
 #' @export
 
 predict.margint <- function(object, ...){
   return( rowSums(object$g.matrix) + object$mu )
 }
 
-#' @param variable
-#' @return value
+#' Diagnostic plots for objects of class \code{margint}
+#'
+#' Plot method for class \code{margint}.
+#'
+#' @param object an object of class \code{margint}, a result of a call to \code{\link{margint.cl}} or \code{\link{margint.rob}}.
+#' @param which vector of indices of explanatory variables for which partial residuals plots will be generated. Defaults to all available explanatory variables.
+#' @param ask logical value. If \code{TRUE}, the graphical device will prompt before going to the next page/screen of output.
+#' @param ... additional other arguments.
+#'
+#' @author Alejandra Mercedes Martinez \email{ale_m_martinez@hotmail.com}
+#'
 #' @export
-
 plot.margint <- function(object, which=1:np, ask=FALSE,...){
   Xp <- object$Xp
   np <- dim(Xp)[2]
@@ -1056,9 +1083,19 @@ plot.margint <- function(object, which=1:np, ask=FALSE,...){
   }
 }
 
-#' @param variable
-#' @return value
+#' Summary for additive models fits using a marginal integration procedure
+#'
+#' Summary method for class \code{margint}.
+#'
+#' This function returns the estimation of the intercept and also the five-number summary and the mean of the residuals for both classical and robust estimators. For the robust estimator it also returns the estimate of the residual standard error.
+#'
+#' @param object an object of class \code{margint}, a result of a call to \code{\link{margint.cl}} or \code{\link{margint.rob}}.
+#' @param ... additional other arguments.
+#'
+#' @author Alejandra Mercedes Martinez \email{ale_m_martinez@hotmail.com}
+#'
 #' @export
+#' @aliases summary.margint summary.margint.cl summary.margint.rob
 
 summary.margint <- function(object,...){
   NextMethod()
