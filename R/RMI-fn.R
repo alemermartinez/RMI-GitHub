@@ -1,9 +1,10 @@
 #' @useDynLib RBF, .registration = TRUE
-#' @import stats graphics
 
-# Tukey's Psi
+#' @param variable
+#' @return value
 #' @export
 
+# Tukey's Psi
 psi.tukey <- function(r, k=4.685){
   u <- abs(r/k)
   w <- r*((1-u)*(1+u))^2
@@ -11,9 +12,11 @@ psi.tukey <- function(r, k=4.685){
   return(w)
 }
 
-#Tukey's weight function "Psi(r)/r"
+#' @param variable
+#' @return value
 #' @export
 
+#Tukey's weight function "Psi(r)/r"
 psi.w <- function(r, k= 4.685){
   u <- abs(r/k)
   w <- ((1 + u) * (1 - u))^2
@@ -22,9 +25,11 @@ psi.w <- function(r, k= 4.685){
 }
 
 
-# Huber's Psi
+#' @param variable
+#' @return value
 #' @export
 
+# Huber's Psi
 psi.huber <- function(r, k=1.345)
   pmin(k, pmax(-k, r))
 
@@ -1005,19 +1010,8 @@ margint.rob <- function(Xp, yp, point=NULL, windows, prob=NULL, sigma.hat=NULL,
 
 #S3 Methods
 
-#' Residuals for objects of class \code{margint}
-#'
-#' This function returns the residuals of the fitted additive model using
-#' the classical or robust backfitting estimators, as computed with \code{\link{backf.cl}} or
-#' \code{\link{backf.rob}}.
-#'
-#' @param object an object of class \code{backf}, a result of a call to \code{\link{backf.cl}} or \code{\link{backf.rob}}.
-#' @param ... additional other arguments. Currently ignored.
-#'
-#' @return A vector of residuals.
-#'
-#' @author Alejandra Mercedes Martinez \email{ale_m_martinez@hotmail.com}
-#'
+#' @param variable
+#' @return value
 #' @export
 
 residuals.margint <- function(object, ...){
@@ -1084,3 +1078,5 @@ summary.margint.rob <- function(object,...){
   message("Residuals:")
   summary(res)
 }
+
+
