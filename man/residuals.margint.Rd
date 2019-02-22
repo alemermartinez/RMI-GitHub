@@ -2,22 +2,22 @@
 % Please edit documentation in R/RMI-fn.R
 \name{residuals.margint}
 \alias{residuals.margint}
-\title{Residuals for objects of class \code{backf}}
+\title{Residuals of a marginal integration fit in an additive model}
 \usage{
 \method{residuals}{margint}(object, ...)
 }
 \arguments{
-\item{object}{an object of class \code{backf}, a result of a call to \code{\link{backf.cl}} or \code{\link{backf.rob}}.}
+\item{object}{an object of class \code{margint}, a result of a call to \code{\link{margint.cl}} or \code{\link{margint.rob}}.}
 
-\item{...}{additional other arguments. Currently ignored.}
+\item{...}{additional other arguments.}
 }
 \value{
 A vector of residuals.
 }
 \description{
-This function returns the residuals of the fitted additive model using
-the classical or robust backfitting estimators, as computed with \code{\link{backf.cl}} or
-\code{\link{backf.rob}}.
+This function returns the residuals of the fitted additive model using one of the three
+classical or robust marginal integration estimators, as computed with \code{\link{margint.cl}} or
+\code{\link{margint.rob}}.
 }
 \author{
 Alejandra Mercedes Martinez \email{ale_m_martinez@hotmail.com}
