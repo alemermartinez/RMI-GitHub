@@ -1,8 +1,9 @@
-#' @param variable
-#' @return value
-#' @export
+#' @useDynLib RBF, .registration = TRUE
+#' @import stats graphics
 
 # Tukey's Psi
+#' @export
+
 psi.tukey <- function(r, k=4.685){
   u <- abs(r/k)
   w <- r*((1-u)*(1+u))^2
@@ -10,11 +11,9 @@ psi.tukey <- function(r, k=4.685){
   return(w)
 }
 
-#' @param variable
-#' @return value
+#Tukey's weight function "Psi(r)/r"
 #' @export
 
-#Tukey's weight function "Psi(r)/r"
 psi.w <- function(r, k= 4.685){
   u <- abs(r/k)
   w <- ((1 + u) * (1 - u))^2
@@ -23,11 +22,9 @@ psi.w <- function(r, k= 4.685){
 }
 
 
-#' @param variable
-#' @return value
+# Huber's Psi
 #' @export
 
-# Huber's Psi
 psi.huber <- function(r, k=1.345)
   pmin(k, pmax(-k, r))
 
