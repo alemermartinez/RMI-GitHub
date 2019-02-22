@@ -2,7 +2,7 @@
 % Please edit documentation in R/RMI-fn.R
 \name{residuals.margint}
 \alias{residuals.margint}
-\title{Residuals for objects of class \code{margint}}
+\title{Residuals for objects of class \code{backf}}
 \usage{
 \method{residuals}{margint}(object, ...)
 }
