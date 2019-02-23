@@ -78,6 +78,13 @@ psi.huber.w <- function(r, k=1.345)
 my.norm.2 <- function(x) sqrt(sum(x^2))
 
 
+#' @title Epanechnikov kernel
+#' @description Epanechnikov kernel.
+#' @usage k.epan(x) 
+#' kernel2(x)
+#' @param x A real number.
+#' @author Alejandra Martinez, Matias Salibian-Barrera
+#' @return 0 if abs(x) > 1 and 0.75 * (1 - x^2) otherwise.
 #' @export
 
 #Epanechnikov kernel
@@ -99,6 +106,12 @@ kernel2<-function(t){
 #- Higher order kernels -#
 
 
+#' @title Order 4 kernel
+#' @description A kernel of order 4.
+#' @param x A real number.
+#' @author Alejandra Martinez, Matias Salibian-Barrera
+#' @return 0 if abs(x) > 1 and ( 15/32 ) * ( 1 - x^2 ) * ( 3 - 7 * x^2 ) otherwise.
+#' @details A kernel L is a kernel of order 4 if it integrates 1, the integrals of u^j L(u) are 0 for 1 <= j < 4 (j integer) and the integral of u^4 L(u) is different from 0.
 #' @export
 
 #Order 4
@@ -109,6 +122,12 @@ kernel4<-function(x) {
 }
 
 
+#' @title Order 6 kernel
+#' @description A kernel of order 6.
+#' @param x A real number.
+#' @author Alejandra Martinez, Matias Salibian-Barrera
+#' @return 0 if abs(x) > 1 and ( 105/256 ) * ( 1 - x^2 ) * ( 5 - 30 * x^2 + 33 * x^4 ) otherwise.
+#' @details A kernel L is a kernel of order 6 if it integrates 1, the integrals of u^j L(u) are 0 for 1 <= j < 6 (j integer) and the integral of u^6 L(u) is different from 0.
 #' @export
 
 #Order 6
@@ -118,7 +137,14 @@ kernel6<-function(x) {
   return(tmp)
 }
 
+#' @title Order 8 kernel
+#' @description A kernel of order 8.
+#' @param x A real number.
+#' @author Alejandra Martinez, Matias Salibian-Barrera
+#' @return 0 if abs(x) > 1 and ( 315/4096 ) * ( 1 - x^2 ) * ( 35 - 385 * x^2 + 1001 * x^4 - 715 * x^6 ) otherwise.
+#' @details A kernel L is a kernel of order 8 if it integrates 1, the integrals of u^j L(u) are 0 for 1 <= j < 8 (j integer) and the integral of u^8 L(u) is different from 0.
 #' @export
+
 
 #Order 8
 kernel8<-function(x) {
@@ -127,6 +153,12 @@ kernel8<-function(x) {
   return(tmp)
 }
 
+#' @title Order 10 kernel
+#' @description A kernel of order 10.
+#' @param x A real number.
+#' @author Alejandra Martinez, Matias Salibian-Barrera
+#' @return 0 if abs(x) > 1 and 0.75 * ( 1 - x^2 ) * ( 315/128 - 105/32 * x^2 + 63/64 * x^4 - 3/32 * x^6 - 1/384 * x^8 ) otherwise.
+#' @details A kernel L is a kernel of order 10 if it integrates 1, the integrals of u^j L(u) are 0 for 1 <= j < 10 (j integer) and the integral of u^10 L(u) is different from 0.
 #' @export
 
 #Order 10
@@ -136,6 +168,30 @@ kernel10<-function(x) {
   return(tmp)
 }
 
+#' @title Classic marginal integration procedures for additive models
+#' @description Standard marginal integration procedures for additive models.
+#' @param Xp Matrix of explanatory variables (n by p).
+#' @param yp  Vector of responses (missing values are allowed).
+#' @param point Matrix of points where predictions will be computed and returned.
+#' @param windows Vector or a squared matrix of bandwidths for the smoothing estimation procedure.
+#' @param epsilon Convergence criterion.
+#' @param prob Probabilities of observing each response (n). Defaults to ``NULL''.
+#' @param type Three different type of estimators can be selected: type '0' (local constant on all the covariates), type '1' (local linear smoother on all the covariates), type 'alpha' (local polynomial smoother only on the direction of interest). 
+#' @param degree Degree of the local polynomial smoother in the direction of interest when using the estimator of type 'alpha'. Defaults to ``NULL'' for the case when using estimators of type '0' or '1'. 
+#' @param orderkernel Order of the kernel used in the nuisance directions when using the estimator of type 'alpha'. Defaults to ``2''.
+#' @param qderivate If TRUE, it calculates g^(q+1)/(q+1)! for each component only for the type 'alpha' method. Defaults to ``FALSE''.
+#' @param Qmeasure A matrix of points where the integration procedure ocurrs. Defaults to ``NULL'' for calcuting the integrals over the sample.
+#' @details Three types of classical marginal integration procedures for additive models, that is, considering a squared loss function.
+#' @return 
+#' \item{mu}{Estimate for the intercept.}
+#' \item{g.matrix}{Matrix of estimated additive components (n by p).} 
+#' \item{prediction }{Matrix of estimated additive components for the points listed in the argument point.}
+#' \item{mul}{A vector of size p showing in each component the estimated intercept that considers only that direction of interest when using the type 'alpha' method.}
+#' \item{g.derivative }{Matrix of estimated derivatives of the additive components (only when qderivate is ``TRUE'') (n by p).}
+#' \item{prediction.derivate }{Matrix of estimated derivatives of the additive components for the points listed in the argument point (only when qderivate is ``TRUE'').}
+#' 
+#' @keywords Additive Models
+#' @author Alejandra Martinez, Matias Salibian-Barrera
 #' @export
 
 ## Classic Marginal Integration
