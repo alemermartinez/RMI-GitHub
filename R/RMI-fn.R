@@ -189,6 +189,8 @@ kernel10<-function(x) {
 #' \item{mul}{A vector of size p showing in each component the estimated intercept that considers only that direction of interest when using the type 'alpha' method.}
 #' \item{g.derivative }{Matrix of estimated derivatives of the additive components (only when qderivate is ``TRUE'') (n by p).}
 #' \item{prediction.derivate }{Matrix of estimated derivatives of the additive components for the points listed in the argument point (only when qderivate is ``TRUE'').}
+#' \item{Xp}{Matrix of explanatory variables.}
+#' \item{yp}{Vector of responses.}
 #' 
 #' @keywords Additive Models
 #' @author Alejandra Martinez, Matias Salibian-Barrera
@@ -524,7 +526,41 @@ margint.cl <- function(Xp, yp, point=NULL, windows, epsilon=1e-6, prob=NULL,
   }
 }
 
+#' @title Robust marginal integration procedures for additive models
+#' @description Robust marginal integration procedures for additive models.
+#' @param Xp Matrix of explanatory variables (n by p).
+#' @param yp  Vector of responses (missing values are allowed).
+#' @param point Matrix of points where predictions will be computed and returned.
+#' @param windows Vector or a squared matrix of bandwidths for the smoothing estimation procedure.
+#' @param prob Probabilities of observing each response (n). Defaults to ``NULL''.
+#' @param sigma.hat Estimate of the residual standard error. If NULL we use the mad of the residuals obtained with local medians.
+#' @param win.sigma Vector of bandwidths for estimating sigma.hat. If NULL it uses the argument windows if it is a vector or its diagonal if it is a matrix.
+#' @param epsilon Convergence criterion.
+#' @param type Three different type of estimators can be selected: type '0' (local constant on all the covariates), type '1' (local linear smoother on all the covariates), type 'alpha' (local polynomial smoother only on the direction of interest). 
+#' @param degree Degree of the local polynomial smoother in the direction of interest when using the estimator of type 'alpha'. Defaults to ``NULL'' for the case when using estimators of type '0' or '1'. 
+#' @param typePhi One of either ``Tukey'' or ``Huber''.
+#' @param k.h Tuning constant for a Huber-type loss function. Defaults to ``1.345''.
+#' @param k.t Tuning constant for a Tukey-type loss function. Defaults to ``4.685''.
+#' @param max.it Maximum number of iterations for the algorithm.
+#' @param qderivate If TRUE, it calculates g^(q+1)/(q+1)! for each component only for the type 'alpha' method. Defaults to ``FALSE''.
+#' @param orderkernel Order of the kernel used in the nuisance directions when using the estimator of type 'alpha'. Defaults to ``2''.
+#' @param Qmeasure A matrix of points where the integration procedure ocurrs. Defaults to ``NULL'' for calcuting the integrals over the sample.
+#' @details Three types of robust marginal integration procedures for additive models.
+#' @return 
+#' \item{mu }{Estimate for the intercept.}
+#' \item{g.matrix }{Matrix of estimated additive components (n by p).}
+#' \item{sigma.hat }{Estimate of the residual standard error.}
+#' \item{prediction }{Matrix of estimated additive components for the points listed in the argument point.}
+#' \item{mul }{A vector of size p showing in each component the estimated intercept that considers only that direction of interest when using the type 'alpha' method.}
+#' \item{g.derivative }{Matrix of estimated derivatives of the additive components (only when qderivate is ``TRUE'') (n by p).}
+#' \item{prediction.derivate }{Matrix of estimated derivatives of the additive components for the points listed in the argument point (only when qderivate is ``TRUE'').}
+#' \item{Xp}{Matrix of explanatory variables.}
+#' \item{yp}{Vector of responses.}
+#'  
+#' @keywords Additive Models
+#' @author Alejandra Martinez, Matias Salibian-Barrera
 #' @export
+
 
 
 ## Robust Marginal Integration
